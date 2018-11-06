@@ -16,10 +16,19 @@ import concurrent.futures
 
 from docopt import docopt
 
+working_dir = os.path.dirname(os.path.abspath(__file__)) + "/sshbrute_runtime.log"
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.DEBUG,
+    handlers=[
+        logging.FileHandler(filename=working_dir, mode="w+"),
+        logging.StreamHandler()
+        ]
+    )
 
 def generate_list_from_file(data_file):
     """Convert rhosts file to list"""
-    print("Generating data list from: {}".format(data_file))
+    logging.info("Generating data list from: {}".format(data_file))
     data_list = []
     with open(data_file, 'r') as my_file:
         for line in my_file:
@@ -28,7 +37,7 @@ def generate_list_from_file(data_file):
 
 def test_ssh(ip: str, sshuser: str, sshpass: str, sshtimeout: int):
     """check for default creds on ssh"""
-    print("Testing ssh for: {}".format(ip))
+    logging.info("Testing ssh for: {}".format(ip))
 
     try:
         client = paramiko.SSHClient()
@@ -42,14 +51,17 @@ def test_ssh(ip: str, sshuser: str, sshpass: str, sshtimeout: int):
             auth_timeout=int(sshtimeout),
             banner_timeout=int(sshtimeout),
             )
+        logging.info("Successful Login: {}".format(ip))
+        print("Successful Login: {}".format(ip))
         client.close()
         return ip
-    except:
+    except Exception as ex:
+        logging.info("Error: {}".format(ip))
         pass
 
 def test_ssh_concurrent(rhosts: list, sshuser: str, sshpass: str, sshtimeout: int):
     """Run ssh login test concurrently"""
-    print("Entering concurrent url test")
+    logging.info("Entering concurrent url test")
     results_list = []
 
     if len(rhosts) > 50:
@@ -96,7 +108,7 @@ def main():
         file.write("Successful logins:\n")
         for item in results:
             file.write(item + "\n")
-    print(results)
+    logging.info(results)
 
 if __name__ == '__main__':
     main()
