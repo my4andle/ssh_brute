@@ -10,7 +10,9 @@ Options:
   --rhosts=<rhosts>         List of targets single ip per line
   --sshtimeout=<sshtimeout> Timeout for each conccurent ssh attempt
 """
+import os
 import json
+import logging
 import paramiko
 import concurrent.futures
 
